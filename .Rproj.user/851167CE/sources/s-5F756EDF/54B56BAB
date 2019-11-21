@@ -1,0 +1,25 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1574343925680.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "258537781",
+    "id" : "54B56BAB",
+    "lastKnownWriteTime" : 1574370015,
+    "last_content_update" : 1574370015984,
+    "path" : "~/Workspaces/R/NHST_tictactoe/app.R",
+    "project_path" : "app.R",
+    "properties" : {
+        "cursorPosition" : "498,16",
+        "scrollLine" : "466"
+    },
+    "read_only" : false,
+    "read_only_alternatives" : [
+    ],
+    "relative_order" : 1,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

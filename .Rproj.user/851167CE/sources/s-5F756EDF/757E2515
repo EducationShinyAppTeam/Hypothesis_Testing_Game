@@ -1,0 +1,24 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1574367417854.000,
+    "dirty" : false,
+    "encoding" : "",
+    "folds" : "",
+    "hash" : "0",
+    "id" : "757E2515",
+    "lastKnownWriteTime" : 0,
+    "last_content_update" : 1574367417854,
+    "path" : null,
+    "project_path" : null,
+    "properties" : {
+        "context" : "package:shinyBS:::updateButton"
+    },
+    "read_only" : false,
+    "read_only_alternatives" : [
+    ],
+    "relative_order" : 4,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_code_browser"
+}

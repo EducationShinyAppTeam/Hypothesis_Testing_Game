@@ -1,0 +1,33 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1574354638082.000,
+    "dirty" : false,
+    "encoding" : "",
+    "folds" : "",
+    "hash" : "0",
+    "id" : "67BF26CF",
+    "lastKnownWriteTime" : 140718111701088,
+    "last_content_update" : 1574354638082,
+    "path" : null,
+    "project_path" : null,
+    "properties" : {
+        "cacheKey" : "D794CB85",
+        "caption" : "questionset",
+        "contentUrl" : "grid_resource/gridviewer.html?env=&obj=questionset&cache_key=D794CB85",
+        "displayedObservations" : 9,
+        "environment" : "",
+        "expression" : "questionset",
+        "object" : "questionset",
+        "preview" : 0,
+        "totalObservations" : 9,
+        "variables" : 10
+    },
+    "read_only" : false,
+    "read_only_alternatives" : [
+    ],
+    "relative_order" : 2,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_dataframe"
+}
