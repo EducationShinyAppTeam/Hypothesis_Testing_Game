@@ -8,11 +8,12 @@ packages <-
 
 lapply(packages, library, character.only = TRUE)
 
-GRID_SIZE <- 3
+GRID_SIZE <- 1
+TILE_COUNT <- GRID_SIZE ^ 2
 
 ui <- dashboardPage(
   skin = "blue",
-  #Header
+  # Header
   dashboardHeader(
     title = "NHST Tic-Tac-Toe",
     titleWidth = 300,
@@ -21,7 +22,7 @@ ui <- dashboardPage(
       tags$a(href = "https://shinyapps.science.psu.edu/", icon("home"))
     )
   ),
-  #Sidebar
+  # Sidebar
   dashboardSidebar(
     width = 300,
     sidebarMenu(
@@ -155,7 +156,8 @@ ui <- dashboardPage(
               label = "Submit",
               color = "primary",
               size = "large",
-              style = "bordered"
+              style = "bordered",
+              disabled = TRUE
             ),
             actionButton(
               inputId = "reset",
@@ -215,21 +217,34 @@ server <- function(input, output, session) {
   player <- NA
   opponent <- NA
   scoreMatrix <-
-    matrix(data = rep.int(0, times = GRID_SIZE ^ 2),
+    matrix(data = rep.int(0, times = TILE_COUNT),
            nrow = GRID_SIZE,
            ncol = GRID_SIZE)
   gameProgress <- FALSE
-  .tileObservers <- list()
   
   # Helper Functions
-  .tileCoordinates <- function(tile) {
-    # oxo-[row]-[col]
-    tile <- strsplit(tile, "-")[[1]]
-    tile <- tile[-1] # remove oxo
+  .tileCoordinates <- function(tile = NULL, index = NULL) {
+    
+    row <- -1
+    col <- -1
+    
+    # if: button tile is given, derive from id
+    # else: derive from index
+    if(!is.null(tile)){
+      # oxo-[row]-[col]
+      tile <- strsplit(tile, "-")[[1]]
+      tile <- tile[-1] # remove oxo
+      
+      row <- strtoi(tile[1])
+      col <- strtoi(tile[2])
+    } else {
+      row <- (index - 1) %/% GRID_SIZE + 1
+      col <- index - (GRID_SIZE * (row - 1))
+    }
     
     coordinates <- list(
-      "row" = strtoi(tile[1]),
-      "col" = strtoi(tile[2])
+      "row" = row,
+      "col" = col
     )
     
     return(coordinates) 
@@ -237,52 +252,54 @@ server <- function(input, output, session) {
   
   .tileIndex <- function(tile) {
     coords <- .tileCoordinates(tile)
-    
-    i = coords$row
-    j = coords$col
-    
-    index = GRID_SIZE * (i - 1) + j
+
+    index = GRID_SIZE * (coords$row - 1) + coords$col
     
     return(index)
   }
   
-  .btnReset <- function(x) {
+  .btnReset <- function(index) {
+    coords <- .tileCoordinates(index = index)
+    id <- paste0("oxo-", coords$row, "-", coords$col)
     updateButton(
       session = session,
-      inputId = x,
+      inputId = id,
       label = "?",
       disabled = FALSE
     )
   }
   
-  .score <- function(mat, tile, value) {
+  .score <- function(score, tile, value) {
     i <- .tileCoordinates(tile)
     
-    mat[i$row, i$col] <- value
+    score[i$row, i$col] <- value
     
-    print(mat)
-    
-    return(mat)
+    return(score)
   }
   
-  # @todo: change hardcoded 3 to GRID_SIZE based values
   .gameCheck <- function(mat) {
     rows <- rowSums(mat)
     cols <- colSums(mat)
-    mainD <- sum(diag(mat))
-    rotated <- apply(t(mat), 2, rev)
-    offD <- sum(diag(rotated))
-    if (3 %in% rows ||
-        3 %in% cols || mainD == 3 || offD == 3) {
-      return("win")
-    } else if (-3 %in% rows ||
-               -3 %in% cols == 1 ||
-               mainD == -3 || offD == -3) {
-      return("lose")
-    } else if (any(mat == 0)) {
-      return("continue")
+    
+    if(GRID_SIZE > 1){
+      mainD <- sum(diag(mat))
+      rotated <- apply(t(mat), 2, rev)
+      offD <- sum(diag(rotated))
+      
+      if (GRID_SIZE %in% rows ||
+          GRID_SIZE %in% cols || mainD == GRID_SIZE || offD == GRID_SIZE) {
+        return("win")
+      } else if (-GRID_SIZE %in% rows ||
+                 -GRID_SIZE %in% cols == 1 ||
+                 mainD == -GRID_SIZE || offD == -GRID_SIZE) {
+        return("lose")
+      } else if (any(mat == 0)) {
+        return("continue")
+      } else {
+        return("draw")
+      }
     } else {
-      return("draw")
+      ifelse(rows == 1 && rows != 0, return("win"), return("lose"))
     }
   }
   
@@ -376,9 +393,9 @@ server <- function(input, output, session) {
   }
   
   .gameReset <- function() {
-    lapply(9, .btnReset) # @todo: replace with calc
+    lapply(1:TILE_COUNT, .btnReset)
     qSelected <<-
-      sample(seq_len(nrow(questionBank)), size = 9, replace = FALSE)
+      sample(seq_len(nrow(questionBank)), size = TILE_COUNT, replace = FALSE)
     gameSet <<- questionBank[qSelected, ]
     
     output$question <-
@@ -392,12 +409,15 @@ server <- function(input, output, session) {
       ""
     })
     scoreMatrix <<-
-      matrix(data = rep.int(0, times = 9),
-             nrow = 3,
-             ncol = 3)
+      matrix(data = rep.int(0, times = TILE_COUNT),
+             nrow = GRID_SIZE,
+             ncol = GRID_SIZE)
     gameProgress <- FALSE
     activeBtn <- NA
-    print(scoreMatrix)
+    
+    updateButton(session = session,
+                 inputId = "submit",
+                 disabled = TRUE)
   }
   
   # Define navigation buttons
@@ -415,7 +435,7 @@ server <- function(input, output, session) {
              stringsAsFactors = FALSE,
              as.is = TRUE)
   qSelected <-
-    sample(seq_len(nrow(questionBank)), size = 9, replace = FALSE)
+    sample(seq_len(nrow(questionBank)), size = TILE_COUNT, replace = FALSE)
   gameSet <- questionBank[qSelected, ]
   
   # Program the Reset Button
@@ -423,7 +443,7 @@ server <- function(input, output, session) {
     .gameReset()
   })
   
-  # Program Game Buttons
+  # Render Game Board / Attach Observers
   output$gameBoard <- renderUI({
     board <- list()
     index <- 1
@@ -440,65 +460,16 @@ server <- function(input, output, session) {
           class = "btn-ttt"
         )
         
+        observeEvent(session$input[[id]], {
+          activeBtn <<- id
+          .boardBtn(id)
+        })
+        
         index <<- index + 1
       })
     })
     
     board
-  })
-  
-  observeEvent(session$input[["oxo-1-1"]], {
-    id <- "oxo-1-1"
-    activeBtn <<- id
-    .boardBtn(id)
-  })
-  
-  observeEvent(session$input[["oxo-1-2"]], {
-    id <- "oxo-1-2"
-    activeBtn <<- id
-    .boardBtn(id)
-  })
-  
-  observeEvent(session$input[["oxo-1-3"]], {
-    id <- "oxo-1-3"
-    activeBtn <<- id
-    .boardBtn(id)
-  })
-  
-  observeEvent(session$input[["oxo-2-1"]], {
-    id <- "oxo-2-1"
-    activeBtn <<- id
-    .boardBtn(id)
-  })
-  
-  observeEvent(session$input[["oxo-2-2"]], {
-    id <- "oxo-2-2"
-    activeBtn <<- id
-    .boardBtn(id)
-  })
-  
-  observeEvent(session$input[["oxo-2-3"]], {
-    id <- "oxo-2-3"
-    activeBtn <<- id
-    .boardBtn(id)
-  })
-  
-  observeEvent(session$input[["oxo-3-1"]], {
-    id <- "oxo-3-1"
-    activeBtn <<- id
-    .boardBtn(id)
-  })
-  
-  observeEvent(session$input[["oxo-3-2"]], {
-    id <- "oxo-3-2"
-    activeBtn <<- id
-    .boardBtn(id)
-  })
-  
-  observeEvent(session$input[["oxo-3-3"]], {
-    id <- "oxo-3-3"
-    activeBtn <<- id
-    .boardBtn(id)
   })
   
   # Program Submit Button
@@ -553,9 +524,11 @@ server <- function(input, output, session) {
         btn_labels = "Start Over"
       ) 
     }
-    updateButton(session = session,
-                 inputId = "submit",
-                 disabled = TRUE)
+    updateButton(
+      session = session,
+      inputId = "submit",
+      disabled = TRUE
+    )
   })
   
   observeEvent(input$tabs, {
@@ -572,11 +545,9 @@ server <- function(input, output, session) {
         gameProgress <<- TRUE
       }
     }
-    print("observe: tabs")
   }, ignoreInit = TRUE)
   
   observeEvent(input$endGame, {
-    print("End game")
     .gameReset()
   })
   
