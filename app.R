@@ -8,7 +8,7 @@ packages <-
 
 lapply(packages, library, character.only = TRUE)
 
-GRID_SIZE <- 1
+GRID_SIZE <- 3
 TILE_COUNT <- GRID_SIZE ^ 2
 
 ui <- dashboardPage(
