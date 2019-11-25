@@ -48,7 +48,59 @@ ui <- dashboardPage(
         icon = icon("tasks")
       )
     ),
-    tags$div(class = "sidebar-logo", boastUtils::psu_eberly_logo("reversed"))
+    tags$div(class = "sidebar-logo", boastUtils::psu_eberly_logo("reversed")),
+    tags$style(HTML("
+    
+      #gameBoard {
+        position: relative;
+      }
+      .grid-fill {
+        /* clear ul styles */
+        list-style: none;
+        margin: 0;
+        padding: 0;
+       
+        /* additional gap */
+        grid-row-gap: 0;
+      }
+      
+      .grid-tile {
+        /* set up aspect ratio hack */
+        position: relative;
+      }
+      
+      .grid-tile button {
+        border: 0.25rem solid #001E44;
+        border-radius: 0;
+      }
+      
+      .grid-fill {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+      }
+      
+      .grid-board {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(60px, 1fr));
+        grid-column-gap: 0;
+        
+        max-width: 350px;
+        width: 100%;
+        height: auto;
+        
+        background-color: #1E407C;
+        border-radius: 0.5rem;
+        border: 0.25rem solid #001E44;
+      }
+      
+      .grid-tile {
+        padding-top: 100%;
+      }
+
+    "))
   ),
   #Pages
   dashboardBody(
@@ -231,7 +283,7 @@ server <- function(input, output, session) {
     # if: button tile is given, derive from id
     # else: derive from index
     if(!is.null(tile)){
-      # oxo-[row]-[col]
+      # grid-[row]-[col]
       tile <- strsplit(tile, "-")[[1]]
       tile <- tile[-1] # remove oxo
       
@@ -260,7 +312,7 @@ server <- function(input, output, session) {
   
   .btnReset <- function(index) {
     coords <- .tileCoordinates(index = index)
-    id <- paste0("oxo-", coords$row, "-", coords$col)
+    id <- paste0("grid-", coords$row, "-", coords$col)
     updateButton(
       session = session,
       inputId = id,
@@ -450,14 +502,17 @@ server <- function(input, output, session) {
     
     sapply(1:GRID_SIZE, function(row) {
       sapply(1:GRID_SIZE, function(column) {
-        id <- paste0("oxo-", row, "-", column)
+        id <- paste0("grid-", row, "-", column)
         
-        board[[index]] <<- actionButton(
-          inputId = paste0("oxo-", row, "-", column),
-          label = "?",
-          color = "primary",
-          style = "bordered",
-          class = "btn-ttt"
+        board[[index]] <<- tags$li(
+          actionButton(
+            inputId = paste0("grid-", row, "-", column),
+            label = "?",
+            color = "primary",
+            style = "bordered",
+            class = paste("btn-ttt", "grid-fill")
+          ),
+          class = "grid-tile"
         )
         
         observeEvent(session$input[[id]], {
@@ -469,7 +524,7 @@ server <- function(input, output, session) {
       })
     })
     
-    board
+    tags$ol(board, class = paste("grid-board", "grid-fill"))
   })
   
   # Program Submit Button
