@@ -48,59 +48,7 @@ ui <- dashboardPage(
         icon = icon("tasks")
       )
     ),
-    tags$div(class = "sidebar-logo", boastUtils::psu_eberly_logo("reversed")),
-    tags$style(HTML("
-    
-      #gameBoard {
-        position: relative;
-      }
-      .grid-fill {
-        /* clear ul styles */
-        list-style: none;
-        margin: 0;
-        padding: 0;
-       
-        /* additional gap */
-        grid-row-gap: 0;
-      }
-      
-      .grid-tile {
-        /* set up aspect ratio hack */
-        position: relative;
-      }
-      
-      .grid-tile button {
-        border: 0.25rem solid #001E44;
-        border-radius: 0;
-      }
-      
-      .grid-fill {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-      }
-      
-      .grid-board {
-        display: grid;
-        grid-template-columns: repeat(3, minmax(60px, 1fr));
-        grid-column-gap: 0;
-        
-        max-width: 350px;
-        width: 100%;
-        height: auto;
-        
-        background-color: #1E407C;
-        border-radius: 0.5rem;
-        border: 0.25rem solid #001E44;
-      }
-      
-      .grid-tile {
-        padding-top: 100%;
-      }
-
-    "))
+    tags$div(class = "sidebar-logo", boastUtils::psu_eberly_logo("reversed"))
   ),
   #Pages
   dashboardBody(
@@ -190,14 +138,14 @@ ui <- dashboardPage(
         ),
         h3(uiOutput("player")),
         fluidRow(
-          column(
-            4,
+          div(
+            class = "col-sm-12 col-md-4",
             h3("Game Board"),
             br(),
-            uiOutput("gameBoard")
+            uiOutput("gameBoard", class = "game-board")
           ),
-          column(
-            8,
+          div(
+            class = "col-sm-12 col-md-8",
             h3("Question"),
             withMathJax(uiOutput("question")),
             uiOutput("extraOutput"),
@@ -304,7 +252,7 @@ server <- function(input, output, session) {
   
   .tileIndex <- function(tile) {
     coords <- .tileCoordinates(tile)
-
+    
     index = GRID_SIZE * (coords$row - 1) + coords$col
     
     return(index)
@@ -510,7 +458,7 @@ server <- function(input, output, session) {
             label = "?",
             color = "primary",
             style = "bordered",
-            class = paste("btn-ttt", "grid-fill")
+            class = "grid-fill"
           ),
           class = "grid-tile"
         )
@@ -524,7 +472,7 @@ server <- function(input, output, session) {
       })
     })
     
-    tags$ol(board, class = paste("grid-board", "grid-fill"))
+    tags$ol(board, class = paste("grid-board", "grid-fill", paste0("grid-", GRID_SIZE, "x", GRID_SIZE)))
   })
   
   # Program Submit Button
@@ -559,7 +507,7 @@ server <- function(input, output, session) {
         session = session,
         inputId = "endGame",
         title = "You Win!",
-        text = "You've gotten three in a row. Start over and play a new game.",
+        text = "You've gotten FIGURE OUT SOME GENERIC TEXT in a row. Start over and play a new game.",
         btn_labels = "Start Over"
       )
     } else if (.gameCheck(scoreMatrix) == "lose") {
