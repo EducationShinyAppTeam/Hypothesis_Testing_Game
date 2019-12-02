@@ -33,11 +33,6 @@ ui <- dashboardPage(
         icon = icon("dashboard")
       ),
       menuItem(
-        text = "Pre-requisites",
-        tabName = "prereq",
-        icon = icon("book")
-      ),
-      menuItem(
         text = "Game",
         tabName = "game",
         icon = icon("gamepad")
@@ -46,11 +41,6 @@ ui <- dashboardPage(
         text = "References",
         tabName = "refs",
         icon = icon("leanpub")
-      ),
-      menuItem(
-        text = "To Do",
-        tabName = "toDo",
-        icon = icon("tasks")
       )
     ),
     tags$div(class = "sidebar-logo", boastUtils::psu_eberly_logo("reversed"))
@@ -92,40 +82,14 @@ ui <- dashboardPage(
       br(),
       h2("Acknowledgements"),
       p(
-        "This version of the app was developed and coded by Neil J. Hatfield and Robert P. Carey, III. The concept of the app stems from David Robinson (2017) and Ryan Voyack (2018).",
+        "This version of the app was developed and coded by Neil J. Hatfield and Robert P. Carey, III.",
+        "The concept of the app stems from David Robinson (2017) and Ryan Voyack (2018).",
         br(),
         "The question bank was written by Dennis Pearl and Neil J. Hatfield.",
         br(),
         br(),
         br(),
-        div(class = "updated", "Last Update: 11/26/2019 by NJH.")
-      )
-    ),
-    #Prereq Page
-    tabItem(
-      tabName = "prereq",
-      withMathJax(),
-      h2("Pre-requisite Meanings"),
-      p("What should go here? If anything?"),
-      box(
-        title = strong("First Pre-requisite meaning"),
-        status = "primary",
-        collapsible = TRUE,
-        collapsed = TRUE,
-        width = "100%",
-        "Text for the first pre-requisite meaning. Replicate this format for subsequent pre-req meanings."
-      ),
-      p(
-        "When you're ready to play the game, press the button below or use the sidebar menu."
-      ),
-      div(
-        style = "text-align: center",
-        bsButton(
-          inputId = "go2",
-          label = "GO!",
-          size = "large",
-          icon = icon("bolt")
-        )
+        div(class = "updated", "Last Update: 12/2/2019 by NJH.")
       )
     ),
     #Game Page
@@ -169,7 +133,7 @@ ui <- dashboardPage(
           ),
           br(),
           #These two triggers help with MathJax re-rendering
-          uiOutput("trigger1"), 
+          uiOutput("trigger1"),
           uiOutput("trigger2")
         )
       )
@@ -201,43 +165,6 @@ ui <- dashboardPage(
       p(
         class = "hangingindent",
         "Perrier, V., Meyer, F., Granjon, D. (2019). shinyWidgets: Custom inputs widgets for shiny. (v0.5.0) [R Package]. Available from https://CRAN.R-project.org/package=shinyWidgets"
-      )
-    ), 
-    #To Do list
-    tabItem(
-      tabName = "toDo",
-      withMathJax(),
-      h2("Things to do:"),
-      tags$ul(
-        tags$li("√D Wrap app in dashboard"),
-        tags$li("√D  Finish the button styling--no hover colors?"),
-        tags$li("√D  Program the buttons to bring up MC questions"),
-        tags$li(
-          "√D  Program answering checking to update button's label and disable"
-        ),
-        tags$li("√D  Program reading in question/answer bank"),
-        tags$li("√D  Program setting of questions"),
-        tags$li("√D  Program the inclusion of the pictures"),
-        tags$li("√D  Program Submit button"),
-        tags$li("√D  Make score keeper"),
-        tags$li("√D  Add win/lose alert"),
-        tags$li("√D  Program Reset button"),
-        tags$li("√D  Don't forget MathJax inclusion of template"),
-        tags$li("√D  Program Go buttons"),
-        tags$li("√D  Program Player Select"),
-        tags$li("√D  Add the buttons in the upper right corner"),
-        tags$li("√D  Set submit button to only allow for one guess"),
-        tags$li("√D  Set the win/lose start over to activate a reset"),
-        tags$li("√D  Reset needs to clear extraOutput"),
-        tags$li("√D  Double check reset works"),
-        tags$li("√D  Lose message doesn't want to appear"),
-        tags$li("√D  top row, left column, diagonals works, others don't"),
-        tags$li("√D  mid-game tab change"),
-        tags$li("  Decide on the pre-req's page"),
-        tags$li("  Do wording/concept check"),
-        tags$li("  Bring app in line with Style Guide"),
-        tags$li("√D  Add Reference Tab"),
-        tags$li("  Remove the To Do List")
       )
     )
   ))
@@ -455,10 +382,6 @@ server <- function(input, output, session) {
   
   # Define navigation buttons
   observeEvent(input$go1, {
-    updateTabItems(session, "tabs", "game")
-  })
-  
-  observeEvent(input$go2, {
     updateTabItems(session, "tabs", "game")
   })
   
