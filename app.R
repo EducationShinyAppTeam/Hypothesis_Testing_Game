@@ -389,11 +389,11 @@ server <- function(input, output, session) {
       verb =  verb,
       object = list(
         id = paste0(boastUtils::getCurrentAddress(session), object),
-        name = paste0(APP_TITLE, ": ", toTitleCase(session$input$tabs)),
+        name = paste0(APP_TITLE),
         description = description
       )
     ))
-    print(statement)
+    # print(statement)
     return(rlocker::store(session, statement))   
   }
   
@@ -402,22 +402,22 @@ server <- function(input, output, session) {
       verb = verb,
       object = list(
         id = paste0(getCurrentAddress(session), "#", object),
-        name = paste0(APP_TITLE, ": ", toTitleCase(session$input$tabs)),
+        name = paste0(APP_TITLE),
         description = paste0("Question ", activeQuestion, ": ", description),
         interactionType = interactionType
       ),
       result = list(
         success = success,
         response = response,
-        completion = completion,
-        extensions = list(
-          ref = "scoreMatrix", value = paste(as.data.frame(scoreMatrix), collapse = ", ")
-          )
+        completion = completion
+        # extensions = list(
+        #   ref = "https://shinyapps.science.psu.edu/scoreMatrix", value = paste(as.data.frame(scoreMatrix), collapse = ", ")
+        #   )
         )
       )
     )
     
-    print(statement)
+    # print(statement)
     return(rlocker::store(session, statement))   
   }
   
@@ -572,7 +572,7 @@ server <- function(input, output, session) {
         gameProgress <<- TRUE
       }
     }
-    .generateStatement(session, object = "tabs", verb = "experienced", description = paste0("Navigated to ", toTitleCase(input$tabs), " tab."))
+    .generateStatement(session, verb = "experienced", description = paste0("Navigated to ", toTitleCase(input$tabs), " tab."))
   }, ignoreInit = TRUE)
   
   observeEvent(input$endGame, {
