@@ -1,21 +1,17 @@
-packages <-
-  c("shiny",
-    "shinyWidgets",
-    "shinydashboard",
-    "shinyBS",
-    "boastUtils",
-    "shinyalert")
-
-lapply(packages, library, character.only = TRUE)
+library(boastUtils)
+library(shinyalert)
+library(shinyBS)
+library(shinyWidgets)
 
 GRID_SIZE <- 3
 TILE_COUNT <- GRID_SIZE ^ 2
+APP_TITLE <- "Hypothesis Testing Game"
 
 ui <- dashboardPage(
   skin = "blue",
   # Header
   dashboardHeader(
-    title = "NHST Tic-Tac-Toe",
+    title = APP_TITLE,
     titleWidth = 300,
     tags$li(
       class = "dropdown",
@@ -39,7 +35,7 @@ ui <- dashboardPage(
       ),
       menuItem(
         text = "References",
-        tabName = "refs",
+        tabName = "references",
         icon = icon("leanpub")
       )
     ),
@@ -139,7 +135,7 @@ ui <- dashboardPage(
       )
     ),
     tabItem(
-      tabName = "refs",
+      tabName = "references",
       withMathJax(),
       h2("References"),
       p(
@@ -173,6 +169,7 @@ ui <- dashboardPage(
 server <- function(input, output, session) {
   # Variables
   activeBtn <- NA
+  activeQuestion <- NA
   player <- NA
   opponent <- NA
   scoreMatrix <-
@@ -264,6 +261,7 @@ server <- function(input, output, session) {
   
   .boardBtn <- function(tile) {
     index <- .tileIndex(tile)
+    activeQuestion <<- gameSet[index, "id"]
     
     output$question <- renderUI({
       withMathJax()
@@ -380,6 +378,49 @@ server <- function(input, output, session) {
                  disabled = TRUE)
   }
   
+  .generateStatement <- function(session, verb = NA, object = NA, description = NA) {
+    if(is.na(object)){
+      object <- paste0("#shiny-tab-", session$input$tabs)
+    } else {
+      object <- paste0("#", object)
+    }
+    
+    statement <- rlocker::createStatement(list(
+      verb =  verb,
+      object = list(
+        id = paste0(boastUtils::getCurrentAddress(session), object),
+        name = paste0(APP_TITLE, ": ", toTitleCase(session$input$tabs)),
+        description = description
+      )
+    ))
+    print(statement)
+    return(rlocker::store(session, statement))   
+  }
+  
+  .generateAnsweredStatement <- function(session, verb = NA, object = NA, description = NA, interactionType = NA, response = NA, success = NA, completion = FALSE) {
+    statement <- rlocker::createStatement(list(
+      verb = verb,
+      object = list(
+        id = paste0(getCurrentAddress(session), "#", object),
+        name = paste0(APP_TITLE, ": ", toTitleCase(session$input$tabs)),
+        description = paste0("Question ", activeQuestion, ": ", description),
+        interactionType = interactionType
+      ),
+      result = list(
+        success = success,
+        response = response,
+        completion = completion,
+        extensions = list(
+          ref = "scoreMatrix", value = paste(as.data.frame(scoreMatrix), collapse = ", ")
+          )
+        )
+      )
+    )
+    
+    print(statement)
+    return(rlocker::store(session, statement))   
+  }
+  
   # Define navigation buttons
   observeEvent(input$go1, {
     updateTabItems(session, "tabs", "game")
@@ -396,6 +437,7 @@ server <- function(input, output, session) {
   
   # Program the Reset Button
   observeEvent(input$reset, {
+    .generateStatement(session, object = "reset", verb = "interacted", description = "Game board has been reset.")
     .gameReset()
   })
   
@@ -422,6 +464,7 @@ server <- function(input, output, session) {
         observeEvent(session$input[[id]], {
           activeBtn <<- id
           .boardBtn(id)
+          .generateStatement(session, object = activeBtn, verb = "interacted", description = paste0("Tile ", activeBtn, " selected. Rendering question: ", activeQuestion, "."))
         })
         
         index <<- index + 1
@@ -438,6 +481,7 @@ server <- function(input, output, session) {
   # Program Submit Button
   observeEvent(input$submit, {
     index <- .tileIndex(activeBtn)
+    answer <- ""
     
     if (gameSet[index, "format"] == "numeric") {
       answer <- gameSet[index, "answer"]
@@ -445,7 +489,9 @@ server <- function(input, output, session) {
       answer <- gameSet[index, gameSet[index, "answer"]]
     }
     
-    if (input$ans == answer) {
+    success <- input$ans == answer
+    
+    if (success) {
       updateButton(
         session = session,
         inputId = activeBtn,
@@ -462,7 +508,25 @@ server <- function(input, output, session) {
       )
       scoreMatrix <<- .score(scoreMatrix, activeBtn,-1)
     }
-    if (.gameCheck(scoreMatrix) == "win") {
+    
+    # Check for game over states
+    .gameState <- .gameCheck(scoreMatrix)
+    completion <- ifelse(.gameState == "continue", FALSE, TRUE)
+    interactionType <- ifelse(gameSet[index,]$format == "numeric", "numeric", "choice")
+    
+    .generateAnsweredStatement(
+      session,
+      object = activeBtn,
+      verb = "answered",
+      description = gameSet[index,]$question,
+      response = input$ans,
+      interactionType = interactionType,
+      success = success,
+      completion = completion
+    )
+    
+    if (.gameState == "win") {
+      .generateStatement(session, object = "game", verb = "completed", description = "Player has won the game.")
       confirmSweetAlert(
         session = session,
         inputId = "endGame",
@@ -470,7 +534,8 @@ server <- function(input, output, session) {
         text = "You've filled either a row, a column, or a main diagonal. Start over and play a new game.",
         btn_labels = "Start Over"
       )
-    } else if (.gameCheck(scoreMatrix) == "lose") {
+    } else if (.gameState == "lose") {
+      .generateStatement(session, object = "game", verb = "completed", description = "Player has lost the game.")
       confirmSweetAlert(
         session = session,
         inputId = "endGame",
@@ -478,7 +543,8 @@ server <- function(input, output, session) {
         text = "Take a moment to review the concepts and then try again.",
         btn_labels = "Start Over"
       )
-    } else if (.gameCheck(scoreMatrix) == "draw") {
+    } else if (.gameState == "draw") {
+      .generateStatement(session, object = "game", verb = "completed", description = "Game has ended in a draw.")
       confirmSweetAlert(
         session = session,
         inputId = "endGame",
@@ -506,9 +572,11 @@ server <- function(input, output, session) {
         gameProgress <<- TRUE
       }
     }
+    .generateStatement(session, object = "tabs", verb = "experienced", description = paste0("Navigated to ", toTitleCase(input$tabs), " tab."))
   }, ignoreInit = TRUE)
   
   observeEvent(input$endGame, {
+    .generateStatement(session, object = "endGame", verb = "interacted", description = paste("Game has been reset."))
     .gameReset()
   })
   
@@ -521,6 +589,8 @@ server <- function(input, output, session) {
       player <<- "O"
       opponent <<- "X"
     }
+    
+    .generateStatement(session, object = "shinyalert", verb = "interacted", description = paste0("User has selected player: ", player))
     
     output$player <- renderUI({
       return(paste0("You are playing as ", player, "."))
