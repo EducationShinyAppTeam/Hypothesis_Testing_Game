@@ -572,7 +572,7 @@ server <- function(input, output, session) {
         gameProgress <<- TRUE
       }
     }
-    .generateStatement(session, verb = "experienced", description = paste0("Navigated to ", toTitleCase(input$tabs), " tab."))
+    .generateStatement(session, verb = "experienced", description = paste0("Navigated to ", input$tabs, " tab."))
   }, ignoreInit = TRUE)
   
   observeEvent(input$endGame, {
