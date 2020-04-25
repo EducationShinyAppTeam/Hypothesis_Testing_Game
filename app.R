@@ -5,7 +5,7 @@ library(shinyWidgets)
 
 GRID_SIZE <- 3
 TILE_COUNT <- GRID_SIZE ^ 2
-APP_TITLE <- "Hypothesis Testing Game"
+APP_TITLE <<- "Hypothesis Testing Game"
 
 ui <- dashboardPage(
   skin = "blue",
@@ -85,7 +85,7 @@ ui <- dashboardPage(
         br(),
         br(),
         br(),
-        div(class = "updated", "Last Update: 12/2/2019 by NJH.")
+        div(class = "updated", "Last Update: 12/3/2019 by RPC.")
       )
     ),
     #Game Page
