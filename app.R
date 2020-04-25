@@ -81,11 +81,11 @@ ui <- dashboardPage(
         "This version of the app was developed and coded by Neil J. Hatfield and Robert P. Carey, III.",
         "The concept of the app stems from David Robinson (2017) and Ryan Voyack (2018).",
         br(),
-        "The question bank was written by Dennis Pearl and Neil J. Hatfield.",
+        "The question bank was written by David Robinson and Neil J. Hatfield.",
         br(),
         br(),
         br(),
-        div(class = "updated", "Last Update: 12/3/2019 by RPC.")
+        div(class = "updated", "Last Update: 4/25/2020 by RPC.")
       )
     ),
     #Game Page
