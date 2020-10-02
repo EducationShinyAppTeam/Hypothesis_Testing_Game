@@ -22,7 +22,7 @@ ui <- dashboardPage(
   dashboardSidebar(
     width = 300,
     sidebarMenu(
-      id = "tabs",
+      id = "pages",
       menuItem(
         text = "Overview",
         tabName = "overview",
@@ -378,52 +378,50 @@ server <- function(input, output, session) {
                  disabled = TRUE)
   }
   
+  ## BEGIN App Specific xAPI Wrappers ----
   .generateStatement <- function(session, verb = NA, object = NA, description = NA) {
     if(is.na(object)){
-      object <- paste0("#shiny-tab-", session$input$tabs)
-    } else {
-      object <- paste0("#", object)
+      object <- paste0("#shiny-tab-", session$input$pages)
     }
     
-    statement <- rlocker::createStatement(list(
-      verb =  verb,
-      object = list(
-        id = paste0(boastUtils::getCurrentAddress(session), object),
-        name = paste0(APP_TITLE),
-        description = description
-      )
-    ))
-    # print(statement)
-    return(rlocker::store(session, statement))   
+    stmt <- boastUtils::generateStatement(
+      session,
+      verb = verb,
+      object = object,
+      description = description
+    )
+    
+    response <- boastUtils::storeStatement(session, stmt)
+    
+    return(response)   
   }
   
   .generateAnsweredStatement <- function(session, verb = NA, object = NA, description = NA, interactionType = NA, response = NA, success = NA, completion = FALSE) {
-    statement <- rlocker::createStatement(list(
+    
+    stmt <- boastUtils::generateStatement(
+      session,
       verb = verb,
-      object = list(
-        id = paste0(getCurrentAddress(session), "#", object),
-        name = paste0(APP_TITLE),
-        description = paste0("Question ", activeQuestion, ": ", description),
-        interactionType = interactionType
-      ),
-      result = list(
-        success = success,
-        response = response,
-        completion = completion
-        # extensions = list(
-        #   ref = "https://shinyapps.science.psu.edu/scoreMatrix", value = paste(as.data.frame(scoreMatrix), collapse = ", ")
-        #   )
-        )
+      object = object,
+      description = paste0("Question ", activeQuestion, ": ", description),
+      interactionType = interactionType,
+      success = success,
+      response = response,
+      completion = completion,
+      extensions = list(
+        ref = "https://educationshinyappteam.github.io/BOAST/xapi/result/extensions/scoreMatrix",
+        value = paste(as.data.frame(scoreMatrix), collapse = ", ")
       )
     )
     
-    # print(statement)
-    return(rlocker::store(session, statement))   
+    response <- boastUtils::storeStatement(session, stmt)
+    
+    return(response) 
   }
+  ## END App Specific xAPI Wrappers ----
   
   # Define navigation buttons
   observeEvent(input$go1, {
-    updateTabItems(session, "tabs", "game")
+    updateTabItems(session, "pages", "game")
   })
   
   # Read in data and generate the first subset
@@ -558,8 +556,8 @@ server <- function(input, output, session) {
                  disabled = TRUE)
   })
   
-  observeEvent(input$tabs, {
-    if (input$tabs == "game") {
+  observeEvent(input$pages, {
+    if (input$pages == "game") {
       if (!gameProgress) {
         shinyalert(
           title = "Player Select",
@@ -572,7 +570,7 @@ server <- function(input, output, session) {
         gameProgress <<- TRUE
       }
     }
-    .generateStatement(session, verb = "experienced", description = paste0("Navigated to ", input$tabs, " tab."))
+    .generateStatement(session, verb = "experienced", description = paste0("Navigated to ", input$pages, " tab."))
   }, ignoreInit = TRUE)
   
   observeEvent(input$endGame, {
