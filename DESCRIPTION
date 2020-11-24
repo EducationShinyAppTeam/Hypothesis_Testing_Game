@@ -1,0 +1,19 @@
+Title: Null Hypothesis Significance Testing Tic-Tac-Toe
+ShortName: Hypothesis Testing Game
+Date: 2020-11-24
+Lifecycle: experimental
+Authors@R: c(
+    person(given = "David", family = "Robinson", role = c("aut", "cre")),
+    person(given = "Ryan", family = "Voyack", role = c("aut", "cre")),
+    person(given = "Neil", family = "Hatfield", email = "njh5464@psu.edu", role = c("ctb")),
+    person(given = "Robert", family = "Carey", email = "rpc5102@psu.edu", role = c("ctb"))
+  )
+Chapter: Statistical Inference
+Description: This app quizzes your knowledge of hypothesis testing concepts using a tic-tac-toe game format.
+LearningObjectives: c()
+DisplayMode: Normal
+URL: https://psu-eberly.shinyapps.io/Hypothesis_Testing_Game
+BugReports: https://github.com/EducationShinyAppTeam/Hypothesis_Testing_Game/issues
+License: CC-BY-NC-SA-4.0
+Tags: game
+Type: Shiny
