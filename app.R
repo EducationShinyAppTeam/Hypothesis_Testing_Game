@@ -311,6 +311,7 @@ server <- function(input, output, session) {
           inputId = "ans",
           choices = list(df[index, "A"],
                          df[index, "B"]),
+          selected = character(0),
           checkIcon = list(
             yes = icon("check-square"),
             no = icon("square-o")
@@ -327,6 +328,7 @@ server <- function(input, output, session) {
           choices = list(df[index, "A"],
                          df[index, "B"],
                          df[index, "C"]),
+          selected = character(0),
           checkIcon = list(
             yes = icon("check-square"),
             no = icon("square-o")
@@ -343,6 +345,7 @@ server <- function(input, output, session) {
                          df[index, "B"],
                          df[index, "C"],
                          df[index, "D"]),
+          selected = character(0),
           checkIcon = list(
             yes = icon("check-square"),
             no = icon("square-o")
