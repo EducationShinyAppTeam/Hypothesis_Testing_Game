@@ -15,6 +15,12 @@ ui <- dashboardPage(
     titleWidth = 300,
     tags$li(
       class = "dropdown",
+      tags$a(target = "_blank", icon("comments"),
+             href = "https://pennstate.qualtrics.com/jfe/form/SV_7TLIkFtJEJ7fEPz?appName=Hypothesis_Testing_TicTacToe_Game"
+      )
+    ),
+    tags$li(
+      class = "dropdown",
       tags$a(href = "https://shinyapps.science.psu.edu/", icon("home"))
     )
   ),
@@ -85,7 +91,7 @@ ui <- dashboardPage(
         br(),
         br(),
         br(),
-        div(class = "updated", "Last Update: 4/25/2020 by RPC.")
+        div(class = "updated", "Last Update: 12/1/2020 by NJH.")
       )
     ),
     #Game Page
@@ -179,40 +185,40 @@ server <- function(input, output, session) {
       ncol = GRID_SIZE
     )
   gameProgress <- FALSE
-  
+
   # Helper Functions
   .tileCoordinates <- function(tile = NULL, index = NULL) {
     row <- -1
     col <- -1
-    
+
     # if: button tile is given, derive from id
     # else: derive from index
     if (!is.null(tile)) {
       # grid-[row]-[col]
       tile <- strsplit(tile, "-")[[1]]
       tile <- tile[-1] # remove oxo
-      
+
       row <- strtoi(tile[1])
       col <- strtoi(tile[2])
     } else {
       row <- (index - 1) %/% GRID_SIZE + 1
       col <- index - (GRID_SIZE * (row - 1))
     }
-    
+
     coordinates <- list("row" = row,
                         "col" = col)
-    
+
     return(coordinates)
   }
-  
+
   .tileIndex <- function(tile) {
     coords <- .tileCoordinates(tile)
-    
+
     index = GRID_SIZE * (coords$row - 1) + coords$col
-    
+
     return(index)
   }
-  
+
   .btnReset <- function(index) {
     coords <- .tileCoordinates(index = index)
     id <- paste0("grid-", coords$row, "-", coords$col)
@@ -223,24 +229,24 @@ server <- function(input, output, session) {
       disabled = FALSE
     )
   }
-  
+
   .score <- function(score, tile, value) {
     i <- .tileCoordinates(tile)
-    
+
     score[i$row, i$col] <- value
-    
+
     return(score)
   }
-  
+
   .gameCheck <- function(mat) {
     rows <- rowSums(mat)
     cols <- colSums(mat)
-    
+
     if (GRID_SIZE > 1) {
       mainD <- sum(diag(mat))
       rotated <- apply(t(mat), 2, rev)
       offD <- sum(diag(rotated))
-      
+
       if (GRID_SIZE %in% rows ||
           GRID_SIZE %in% cols ||
           mainD == GRID_SIZE || offD == GRID_SIZE) {
@@ -258,18 +264,18 @@ server <- function(input, output, session) {
       ifelse(rows == 1 && rows != 0, return("win"), return("lose"))
     }
   }
-  
+
   .boardBtn <- function(tile) {
     index <- .tileIndex(tile)
     activeQuestion <<- gameSet[index, "id"]
-    
+
     output$question <- renderUI({
       withMathJax()
       return(gameSet[index, "question"])
     })
-    
+
     output$answer <- .ansFunc(index, gameSet)
-    
+
     if (gameSet[index, "extraOutput"] != "") {
       output$extraOutput <- renderText({
         gameSet[index, "extraOutput"]
@@ -277,7 +283,7 @@ server <- function(input, output, session) {
     } else {
       output$extraOutput <- NULL
     }
-    
+
     #Retrigger MathJax processing
     output$trigger1 <- renderUI({
       withMathJax()
@@ -285,13 +291,13 @@ server <- function(input, output, session) {
     output$trigger2 <- renderUI({
       withMathJax()
     })
-    
+
     #Enable Submit Button
     updateButton(session = session,
                  inputId = "submit",
                  disabled = FALSE)
   }
-  
+
   .ansFunc <- function(index, df) {
     if (df[index, "format"] == "numeric") {
       renderUI({
@@ -347,13 +353,13 @@ server <- function(input, output, session) {
       })
     }
   }
-  
+
   .gameReset <- function() {
     lapply(1:TILE_COUNT, .btnReset)
     qSelected <<-
       sample(seq_len(nrow(questionBank)), size = TILE_COUNT, replace = FALSE)
     gameSet <<- questionBank[qSelected,]
-    
+
     output$question <-
       renderUI({
         return("Click a button on the game board to get started on your new game.")
@@ -372,32 +378,32 @@ server <- function(input, output, session) {
       )
     gameProgress <- FALSE
     activeBtn <- NA
-    
+
     updateButton(session = session,
                  inputId = "submit",
                  disabled = TRUE)
   }
-  
+
   ## BEGIN App Specific xAPI Wrappers ----
   .generateStatement <- function(session, verb = NA, object = NA, description = NA) {
     if(is.na(object)){
       object <- paste0("#shiny-tab-", session$input$pages)
     }
-    
+
     stmt <- boastUtils::generateStatement(
       session,
       verb = verb,
       object = object,
       description = description
     )
-    
+
     response <- boastUtils::storeStatement(session, stmt)
-    
-    return(response)   
+
+    return(response)
   }
-  
+
   .generateAnsweredStatement <- function(session, verb = NA, object = NA, description = NA, interactionType = NA, response = NA, success = NA, completion = FALSE) {
-    
+
     stmt <- boastUtils::generateStatement(
       session,
       verb = verb,
@@ -412,18 +418,18 @@ server <- function(input, output, session) {
         value = paste(as.data.frame(scoreMatrix), collapse = ", ")
       )
     )
-    
+
     response <- boastUtils::storeStatement(session, stmt)
-    
-    return(response) 
+
+    return(response)
   }
   ## END App Specific xAPI Wrappers ----
-  
+
   # Define navigation buttons
   observeEvent(input$go1, {
     updateTabItems(session, "pages", "game")
   })
-  
+
   # Read in data and generate the first subset
   questionBank <-
     read.csv("questionBank.csv",
@@ -432,22 +438,22 @@ server <- function(input, output, session) {
   qSelected <-
     sample(seq_len(nrow(questionBank)), size = TILE_COUNT, replace = FALSE)
   gameSet <- questionBank[qSelected,]
-  
+
   # Program the Reset Button
   observeEvent(input$reset, {
     .generateStatement(session, object = "reset", verb = "interacted", description = "Game board has been reset.")
     .gameReset()
   })
-  
+
   # Render Game Board / Attach Observers
   output$gameBoard <- renderUI({
     board <- list()
     index <- 1
-    
+
     sapply(1:GRID_SIZE, function(row) {
       sapply(1:GRID_SIZE, function(column) {
         id <- paste0("grid-", row, "-", column)
-        
+
         board[[index]] <<- tags$li(
           actionButton(
             inputId = paste0("grid-", row, "-", column),
@@ -458,37 +464,37 @@ server <- function(input, output, session) {
           ),
           class = "grid-tile"
         )
-        
+
         observeEvent(session$input[[id]], {
           activeBtn <<- id
           .boardBtn(id)
           .generateStatement(session, object = activeBtn, verb = "interacted", description = paste0("Tile ", activeBtn, " selected. Rendering question: ", activeQuestion, "."))
         })
-        
+
         index <<- index + 1
       })
     })
-    
+
     tags$ol(board, class = paste(
       "grid-board",
       "grid-fill",
       paste0("grid-", GRID_SIZE, "x", GRID_SIZE)
     ))
   })
-  
+
   # Program Submit Button
   observeEvent(input$submit, {
     index <- .tileIndex(activeBtn)
     answer <- ""
-    
+
     if (gameSet[index, "format"] == "numeric") {
       answer <- gameSet[index, "answer"]
     } else {
       answer <- gameSet[index, gameSet[index, "answer"]]
     }
-    
+
     success <- input$ans == answer
-    
+
     if (success) {
       updateButton(
         session = session,
@@ -506,12 +512,12 @@ server <- function(input, output, session) {
       )
       scoreMatrix <<- .score(scoreMatrix, activeBtn,-1)
     }
-    
+
     # Check for game over states
     .gameState <- .gameCheck(scoreMatrix)
     completion <- ifelse(.gameState == "continue", FALSE, TRUE)
     interactionType <- ifelse(gameSet[index,]$format == "numeric", "numeric", "choice")
-    
+
     .generateAnsweredStatement(
       session,
       object = activeBtn,
@@ -522,7 +528,7 @@ server <- function(input, output, session) {
       success = success,
       completion = completion
     )
-    
+
     if (.gameState == "win") {
       .generateStatement(session, object = "game", verb = "completed", description = "Player has won the game.")
       confirmSweetAlert(
@@ -555,7 +561,7 @@ server <- function(input, output, session) {
                  inputId = "submit",
                  disabled = TRUE)
   })
-  
+
   observeEvent(input$pages, {
     if (input$pages == "game") {
       if (!gameProgress) {
@@ -572,12 +578,12 @@ server <- function(input, output, session) {
     }
     .generateStatement(session, verb = "experienced", description = paste0("Navigated to ", input$pages, " tab."))
   }, ignoreInit = TRUE)
-  
+
   observeEvent(input$endGame, {
     .generateStatement(session, object = "endGame", verb = "interacted", description = paste("Game has been reset."))
     .gameReset()
   })
-  
+
   observeEvent(input$shinyalert, {
     if (input$shinyalert == TRUE) {
       player <<- "X"
@@ -587,9 +593,9 @@ server <- function(input, output, session) {
       player <<- "O"
       opponent <<- "X"
     }
-    
+
     .generateStatement(session, object = "shinyalert", verb = "interacted", description = paste0("User has selected player: ", player))
-    
+
     output$player <- renderUI({
       return(paste0("You are playing as ", player, "."))
     })

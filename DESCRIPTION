@@ -1,7 +1,7 @@
 Title: Null Hypothesis Significance Testing Tic-Tac-Toe
 ShortName: Hypothesis Testing Game
 Date: 2020-11-24
-Lifecycle: experimental
+Lifecycle: maturing
 Authors@R: c(
     person(given = "David", family = "Robinson", role = c("aut", "cre")),
     person(given = "Ryan", family = "Voyack", role = c("aut", "cre")),
