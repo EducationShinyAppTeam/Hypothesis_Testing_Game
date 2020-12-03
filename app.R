@@ -8,8 +8,8 @@ TILE_COUNT <- GRID_SIZE ^ 2
 APP_TITLE <<- "Hypothesis Testing Game"
 
 ui <- dashboardPage(
-  skin = "blue",
-  # Header
+  skin = "purple",
+  # Header ----
   dashboardHeader(
     title = APP_TITLE,
     titleWidth = 300,
@@ -24,7 +24,7 @@ ui <- dashboardPage(
       tags$a(href = "https://shinyapps.science.psu.edu/", icon("home"))
     )
   ),
-  # Sidebar
+  # Sidebar ----
   dashboardSidebar(
     width = 300,
     sidebarMenu(
@@ -47,9 +47,9 @@ ui <- dashboardPage(
     ),
     tags$div(class = "sidebar-logo", boastUtils::psu_eberly_logo("reversed"))
   ),
-  #Pages
+  #Pages ----
   dashboardBody(tabItems(
-    #Overview Page
+    #Overview Page ----
     tabItem(
       tabName = "overview",
       withMathJax(),
@@ -94,7 +94,7 @@ ui <- dashboardPage(
         div(class = "updated", "Last Update: 12/1/2020 by NJH.")
       )
     ),
-    #Game Page
+    #Game Page ----
     tabItem(
       tabName = "game",
       withMathJax(),
@@ -140,6 +140,7 @@ ui <- dashboardPage(
         )
       )
     ),
+    # References ----
     tabItem(
       tabName = "references",
       withMathJax(),
@@ -167,7 +168,11 @@ ui <- dashboardPage(
       p(
         class = "hangingindent",
         "Perrier, V., Meyer, F., Granjon, D. (2019). shinyWidgets: Custom inputs widgets for shiny. (v0.5.0) [R Package]. Available from https://CRAN.R-project.org/package=shinyWidgets"
-      )
+      ),
+      br(),
+      br(),
+      br(),
+      boastUtils::copyrightInfo()
     )
   ))
 )
