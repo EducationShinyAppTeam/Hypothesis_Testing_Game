@@ -118,20 +118,19 @@ ui <- dashboardPage(
           uiOutput("extraOutput"),
           h3("Answer"),
           uiOutput("answer"),
-          actionButton(
+          bsButton(
             inputId = "submit",
             label = "Submit",
-            color = "primary",
             size = "large",
-            style = "bordered",
+            style = "default",
             disabled = TRUE
           ),
-          actionButton(
+          bsButton(
             inputId = "reset",
             label = "Reset Game",
             color = "primary",
             size = "large",
-            style = "bordered"
+            style = "default"
           ),
           br(),
           #These two triggers help with MathJax re-rendering
@@ -503,7 +502,14 @@ server <- function(input, output, session) {
 
     success <- input$ans == answer
 
-    if (success) {
+    if (is.null(success) || length(success) == 0) {
+      sendSweetAlert(
+        session = session,
+        title = "Error",
+        text = "Please select an answer before pressing Submit.",
+        type = "error"
+      )
+    } else if (success) {
       updateButton(
         session = session,
         inputId = activeBtn,
@@ -565,9 +571,19 @@ server <- function(input, output, session) {
         btn_labels = "Start Over"
       )
     }
-    updateButton(session = session,
-                 inputId = "submit",
-                 disabled = TRUE)
+    if (is.null(success) || length(success) == 0) {
+      updateButton(
+        session = session,
+        inputId = "submit",
+        disabled = FALSE
+      )
+    } else{
+      updateButton(
+        session = session,
+        inputId = "submit",
+        disabled = TRUE
+      )
+    }
   })
 
   observeEvent(input$pages, {
