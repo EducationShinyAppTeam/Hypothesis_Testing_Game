@@ -15,16 +15,22 @@ ui <- dashboardPage(
     title = APP_TITLE,
     titleWidth = 250,
     tags$li(
-      class = "dropdown",
-      tags$a(target = "_blank", icon("comments"),
-             href = "https://pennstate.qualtrics.com/jfe/form/SV_7TLIkFtJEJ7fEPz?appName=Hypothesis_Testing_TicTacToe_Game"
-      )
+      class = "dropdown", 
+      actionLink("info",icon("info"))
     ),
     tags$li(
       class = "dropdown",
-      tags$a(href = "https://shinyapps.science.psu.edu/", icon("home"))
-    )
-  ),
+      tags$a(target = "_blank", icon("comments"),
+             href = "https://pennstate.qualtrics.com/jfe/form/SV_7TLIkFtJEJ7fEPz?appName=Hypothesis_Testing_Game"
+      )
+    ),
+    tags$li(class = "dropdown", 
+            tags$a(href='https://shinyapps.science.psu.edu/', 
+                   icon("home", lib = "font-awesome")
+                   )
+            )
+    ),
+  
   # Sidebar ----
   dashboardSidebar(
     width = 250,
@@ -37,7 +43,7 @@ ui <- dashboardPage(
       ),
       menuItem(
         text = "Prerequisites",
-        tabname = "prereq",
+        tabName = "prereq",
         icon = icon("book")
       ),
       menuItem(
@@ -71,10 +77,9 @@ ui <- dashboardPage(
         h2("Instructions"),
         p("To play the game: "),
         tags$ol(
-          tags$li("Review any prerequiste ideas."),
-          tags$li("Click the GO! button to go the game page."),
-          tags$li("Select whether you'll play as the O's or the X's."),
-          tags$li("Select the square that you want to place your marker."),
+          tags$li("Review any prerequistes before playing the game."),
+          tags$li("Start the game and choose whether you'll play as the O's or the X's."),
+          tags$li("Select the square that you want to place your mark."),
           tags$li(
             "Answer the question that is given. If you're correct, you get that square. If not, the computer will."
           ),
@@ -85,8 +90,8 @@ ui <- dashboardPage(
         div(
           style = "text-align: center",
           bsButton(
-            inputId = "go1",
-            label = "Go!",
+            inputId = "toprereq",
+            label = "Read the Prerequisites",
             size = "large",
             icon = icon("bolt")
           )
@@ -107,7 +112,6 @@ ui <- dashboardPage(
       ## Prereq Page ----
       tabItem(
         tabName = "prereq",
-        withMathJax(),
         h2("NHST Concepts"),
         br(),
         h3("p-values"),
@@ -115,28 +119,40 @@ ui <- dashboardPage(
           "Given that the null hypothesis is true, the probability of obtaining 
           a sample statistic as extreme or more extreme than the one in the 
           observed sample, in the direction of the alternative hypothesis.",
-         br(),
-         strong("Statistical Significance:"),
-         "A test is considered to be statistically significant when the p-value 
-         is less than or equal to the level of significance, also known as the 
-         alpha (XXX) level."),
+          br(),
+          strong("Statistical Significance:"),
+          "A test is considered to be statistically significant when 
+            the p-value is less than or equal to the level of significance, 
+            also known as the alpha",
+          withMathJax(helpText('$\alpha$')), "level."
+        ),
         br(),
         h3("Writing Hypotheses"),
         p(strong("Null Hypothesis"),
           "Always a statement of equality because there is not a difference in 
-          the population(s), denoted as XXX.",
+          the populations, denoted as XXX.",
           br(),
           strong("Alternative Hypothesis"),
           "Always a statement of inequality because there is some difference in 
-          the population(s), denoted as XXX or XXX."
+          the populations, denoted as XXX or XXX."
         ),
         tags$ol(
           tags$li("Two-tailed"),
-          p("Use XXX in alternative hypothesis."),
+          p("Use $\neq$ in alternative hypothesis."),
           tags$li("Left-tailed"),
           p("Use XXX in alternative hypothesis."),
           tags$li("Right-tailed"),
           p("Use XXX in alternative hypothesis.")
+        ),
+        br(),
+        div(
+          style = "text-align: center",
+          bsButton(
+            inputId = "togame",
+            label = "Let's play the game!",
+            size = "large",
+            icon = icon("bolt")
+          )
         )
       ),
       
@@ -479,8 +495,29 @@ server <- function(input, output, session) {
   ## END App Specific xAPI Wrappers ----
 
   # Define navigation buttons
-  observeEvent(input$go1, {
-    updateTabItems(session, "pages", "game")
+  
+  observeEvent(input$info,{
+    sendSweetAlert(
+      session = session,
+      title = "Instructions:",
+      text = "Answer questions correctly about hypothesis testing in order to 
+      fill the tic-tac-toe board and win the game.",
+      type = NULL
+    )
+  })
+  
+  observeEvent(input$toprereq, {
+    updateTabItems(
+      session = session, 
+      inputId = "pages", 
+      selected = "prereq")
+  })
+  
+  observeEvent(input$togame, {
+    updateTabItems(
+      session = session, 
+      inputId = "pages", 
+      selected = "game")
   })
 
   # Read in data and generate the first subset
