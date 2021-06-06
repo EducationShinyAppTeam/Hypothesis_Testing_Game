@@ -2,6 +2,7 @@ library(boastUtils)
 library(shinyalert)
 library(shinyBS)
 library(shinyWidgets)
+library(shiny)
 
 GRID_SIZE <- 3
 TILE_COUNT <- GRID_SIZE ^ 2
@@ -12,7 +13,7 @@ ui <- dashboardPage(
   # Header ----
   dashboardHeader(
     title = APP_TITLE,
-    titleWidth = 300,
+    titleWidth = 250,
     tags$li(
       class = "dropdown",
       tags$a(target = "_blank", icon("comments"),
@@ -26,13 +27,18 @@ ui <- dashboardPage(
   ),
   # Sidebar ----
   dashboardSidebar(
-    width = 300,
+    width = 250,
     sidebarMenu(
       id = "pages",
       menuItem(
         text = "Overview",
         tabName = "overview",
         icon = icon("dashboard")
+      ),
+      menuItem(
+        text = "Prerequisites",
+        tabname = "prereq",
+        icon = icon("book")
       ),
       menuItem(
         text = "Game",
@@ -45,135 +51,175 @@ ui <- dashboardPage(
         icon = icon("leanpub")
       )
     ),
-    tags$div(class = "sidebar-logo", boastUtils::psu_eberly_logo("reversed"))
-  ),
-  #Pages ----
-  dashboardBody(tabItems(
-    #Overview Page ----
-    tabItem(
-      tabName = "overview",
-      withMathJax(),
-      h1("Null Hypothesis Significance Testing Tic-Tac-Toe"),
-      p(
-        "This app quizzes your knowledge of null hypothesis significance testing (NHST) concepts using a tic-tac-toe game."
-      ),
-      h2("Instructions"),
-      p("To play the game: "),
-      tags$ol(
-        tags$li("Review any pre-requiste ideas."),
-        tags$li("Click the GO! button to go the game page."),
-        tags$li("Select whether you'll play as the O's or the X's."),
-        tags$li("Select the square that you want to place your marker."),
-        tags$li(
-          "Answer the question that is given. If you're correct, you get that square. If not, the computer will."
-        ),
-        tags$li(
-          "Win by filling a row, a column, or a main diagonal with your mark (X's or O's)."
-        )
-      ),
-      div(
-        style = "text-align: center",
-        bsButton(
-          inputId = "go1",
-          label = "Go!",
-          size = "large",
-          icon = icon("bolt")
-        )
-      ),
-      br(),
-      br(),
-      h2("Acknowledgements"),
-      p(
-        "This version of the app was developed and coded by Neil J. Hatfield and Robert P. Carey, III.",
-        "The concept of the app stems from David Robinson (2017) and Ryan Voyack (2018).",
-        br(),
-        "The question bank was written by David Robinson and Neil J. Hatfield.",
-        br(),
-        br(),
-        br(),
-        div(class = "updated", "Last Update: 12/1/2020 by NJH.")
-      )
-    ),
-    #Game Page ----
-    tabItem(
-      tabName = "game",
-      withMathJax(),
-      useShinyalert(),
-      h2("NHST Tic-Tac-Toe"),
-      p(
-        "To play, click on any one of the buttons that have a question mark. A question will appear to the right with possible answers. If you answer correctly, you will take the square; if not, the computer will take the square. Try your best to win the game!"
-      ),
-      h3(uiOutput("player")),
-      fluidRow(
-        div(
-          class = "col-sm-12 col-md-4",
-          h3("Game Board"),
-          br(),
-          uiOutput("gameBoard", class = "game-board")
-        ),
-        div(
-          class = "col-sm-12 col-md-8",
-          h3("Question"),
-          withMathJax(uiOutput("question")),
-          uiOutput("extraOutput"),
-          h3("Answer"),
-          uiOutput("answer"),
-          bsButton(
-            inputId = "submit",
-            label = "Submit",
-            size = "large",
-            style = "default",
-            disabled = TRUE
-          ),
-          bsButton(
-            inputId = "reset",
-            label = "Reset Game",
-            color = "primary",
-            size = "large",
-            style = "default"
-          ),
-          br(),
-          #These two triggers help with MathJax re-rendering
-          uiOutput("trigger1"),
-          uiOutput("trigger2")
-        )
-      )
-    ),
-    # References ----
-    tabItem(
-      tabName = "references",
-      withMathJax(),
-      h2("References"),
-      p(
-        class = "hangingindent",
-        "Attali, D. and Edwards, T. (2018). shinyalert: Easily create pretty popup messages (modals) in 'Shiny'. (v1.0). [R package]. Available from https://CRAN.R-project.org/package=shinyalert"
-      ),
-      p(
-        class = "hangingindent",
-        "Bailey, E. (2015). shinyBS: Twitter bootstrap components for shiny. (v0.61). [R package]. Available from https://CRAN.R-project.org/package=shinyBS"
-      ),
-      p(
-        class = "hangingindent",
-        "Carey, R. (2019). boastUtils: BOAST Utilities. (v0.1.0). [R Package]. Available from https://github.com/EducationShinyAppTeam/boastUtils"
-      ),
-      p(
-        class = "hangingindent",
-        "Chang, W. and Borges Ribeio, B. (2018). shinydashboard: Create dashboards with 'Shiny'. (v0.7.1) [R Package]. Available from https://CRAN.R-project.org/package=shinydashboard"
-      ),
-      p(
-        class = "hangingindent",
-        "Chang, W., Cheng, J., Allaire, J., Xie, Y., and McPherson, J. (2019). shiny: Web application framework for R. (v1.4.0) [R Package]. Available from https://CRAN.R-project.org/package=shiny"
-      ),
-      p(
-        class = "hangingindent",
-        "Perrier, V., Meyer, F., Granjon, D. (2019). shinyWidgets: Custom inputs widgets for shiny. (v0.5.0) [R Package]. Available from https://CRAN.R-project.org/package=shinyWidgets"
-      ),
-      br(),
-      br(),
-      br(),
-      boastUtils::copyrightInfo()
+    tags$div(
+      class = "sidebar-logo",
+      boastUtils::sidebarFooter()
     )
-  ))
+  ),
+  
+  # Pages ----
+  dashboardBody(
+    tabItems(
+      
+      ## Overview Page ----
+      tabItem(
+        tabName = "overview",
+        withMathJax(),
+        h1("Null Hypothesis Significance Testing Tic-Tac-Toe"),
+        p("This app quizzes your knowledge of null hypothesis significance testing 
+        (NHST) concepts using a tic-tac-toe game."),
+        h2("Instructions"),
+        p("To play the game: "),
+        tags$ol(
+          tags$li("Review any prerequiste ideas."),
+          tags$li("Click the GO! button to go the game page."),
+          tags$li("Select whether you'll play as the O's or the X's."),
+          tags$li("Select the square that you want to place your marker."),
+          tags$li(
+            "Answer the question that is given. If you're correct, you get that square. If not, the computer will."
+          ),
+          tags$li(
+            "Win by filling a row, a column, or a main diagonal with your mark (X's or O's)."
+          )
+        ),
+        div(
+          style = "text-align: center",
+          bsButton(
+            inputId = "go1",
+            label = "Go!",
+            size = "large",
+            icon = icon("bolt")
+          )
+        ),
+        br(),
+        br(),
+        h2("Acknowledgements"),
+        p(
+          "This version of the app was developed and coded by Neil J. Hatfield and Robert P. Carey, III.",
+          br(),
+          "The concept of the app stems from David Robinson (2017) and Ryan Voyack (2018).",
+          br(),
+          "The question bank was written by David Robinson and Neil J. Hatfield.",
+          br(),
+          "The app was updated by Kellien Peritz (2021).")
+      ),
+      
+      ## Prereq Page ----
+      tabItem(
+        tabName = "prereq",
+        withMathJax(),
+        h2("NHST Concepts"),
+        br(),
+        h3("p-values"),
+        p(strong("Definition of the p-value:"), 
+          "Given that the null hypothesis is true, the probability of obtaining 
+          a sample statistic as extreme or more extreme than the one in the 
+          observed sample, in the direction of the alternative hypothesis.",
+         br(),
+         strong("Statistical Significance:"),
+         "A test is considered to be statistically significant when the p-value 
+         is less than or equal to the level of significance, also known as the 
+         alpha (XXX) level."),
+        br(),
+        h3("Writing Hypotheses"),
+        p(strong("Null Hypothesis"),
+          "Always a statement of equality because there is not a difference in 
+          the population(s), denoted as XXX.",
+          br(),
+          strong("Alternative Hypothesis"),
+          "Always a statement of inequality because there is some difference in 
+          the population(s), denoted as XXX or XXX."
+        ),
+        tags$ol(
+          tags$li("Two-tailed"),
+          p("Use XXX in alternative hypothesis."),
+          tags$li("Left-tailed"),
+          p("Use XXX in alternative hypothesis."),
+          tags$li("Right-tailed"),
+          p("Use XXX in alternative hypothesis.")
+        )
+      ),
+      
+      ## Game Page ----
+      tabItem(
+        tabName = "game",
+        withMathJax(),
+        useShinyalert(),
+        h2("NHST Tic-Tac-Toe"),
+        p(
+          "To play, click on any one of the buttons that have a question mark. A question will appear to the right with possible answers. If you answer correctly, you will take the square; if not, the computer will take the square. Try your best to win the game!"
+        ),
+        h3(uiOutput("player")),
+        fluidRow(
+          div(
+            class = "col-sm-12 col-md-4",
+            h3("Game Board"),
+            br(),
+            uiOutput("gameBoard", class = "game-board")
+          ),
+          div(
+            class = "col-sm-12 col-md-8",
+            h3("Question"),
+            withMathJax(uiOutput("question")),
+            uiOutput("extraOutput"),
+            h3("Answer"),
+            uiOutput("answer"),
+            bsButton(
+              inputId = "submit",
+              label = "Submit",
+              size = "large",
+              style = "default",
+              disabled = TRUE
+            ),
+            bsButton(
+              inputId = "reset",
+              label = "Reset Game",
+              color = "primary",
+              size = "large",
+              style = "default"
+            ),
+            br(),
+            #These two triggers help with MathJax re-rendering
+            uiOutput("trigger1"),
+            uiOutput("trigger2")
+          )
+        )
+      ),
+      ## References ----
+      tabItem(
+        tabName = "references",
+        h2("References"),
+        p(
+          class = "hangingindent",
+          "Attali, D. and Edwards, T. (2018). shinyalert: Easily create pretty popup messages (modals) in 'Shiny'. (v1.0). [R package]. Available from https://CRAN.R-project.org/package=shinyalert"
+        ),
+        p(
+          class = "hangingindent",
+          "Bailey, E. (2015). shinyBS: Twitter bootstrap components for shiny. (v0.61). [R package]. Available from https://CRAN.R-project.org/package=shinyBS"
+        ),
+        p(
+          class = "hangingindent",
+          "Carey, R. (2019). boastUtils: BOAST Utilities. (v0.1.0). [R Package]. Available from https://github.com/EducationShinyAppTeam/boastUtils"
+        ),
+        p(
+          class = "hangingindent",
+          "Chang, W. and Borges Ribeio, B. (2018). shinydashboard: Create dashboards with 'Shiny'. (v0.7.1) [R Package]. Available from https://CRAN.R-project.org/package=shinydashboard"
+        ),
+        p(
+          class = "hangingindent",
+          "Chang, W., Cheng, J., Allaire, J., Xie, Y., and McPherson, J. (2019). shiny: Web application framework for R. (v1.4.0) [R Package]. Available from https://CRAN.R-project.org/package=shiny"
+        ),
+        p(
+          class = "hangingindent",
+          "Perrier, V., Meyer, F., Granjon, D. (2019). shinyWidgets: Custom inputs widgets for shiny. (v0.5.0) [R Package]. Available from https://CRAN.R-project.org/package=shinyWidgets"
+        ),
+        br(),
+        br(),
+        br(),
+        boastUtils::copyrightInfo()
+      )
+    )
+  )
 )
 
 server <- function(input, output, session) {
@@ -189,7 +235,7 @@ server <- function(input, output, session) {
       ncol = GRID_SIZE
     )
   gameProgress <- FALSE
-
+  
   # Helper Functions
   .tileCoordinates <- function(tile = NULL, index = NULL) {
     row <- -1
