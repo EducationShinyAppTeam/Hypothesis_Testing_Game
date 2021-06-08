@@ -112,6 +112,7 @@ ui <- dashboardPage(
       ## Prereq Page ----
       tabItem(
         tabName = "prereq",
+        withMathJax(),
         h2("NHST Concepts"),
         br(),
         h3("p-values"),
@@ -123,26 +124,25 @@ ui <- dashboardPage(
           strong("Statistical Significance:"),
           "A test is considered to be statistically significant when 
             the p-value is less than or equal to the level of significance, 
-            also known as the alpha",
-          withMathJax(helpText('$\alpha$')), "level."
+            also known as the alpha \\(\\alpha\\) level."
         ),
         br(),
         h3("Writing Hypotheses"),
         p(strong("Null Hypothesis"),
           "Always a statement of equality because there is not a difference in 
-          the populations, denoted as XXX.",
+          the populations, denoted as \\(H_{0}\\).",
           br(),
           strong("Alternative Hypothesis"),
           "Always a statement of inequality because there is some difference in 
-          the populations, denoted as XXX or XXX."
+          the populations, denoted as \\(H_{1}\\) or \\(H_{a}\\)."
         ),
         tags$ol(
           tags$li("Two-tailed"),
-          p("Use $\neq$ in alternative hypothesis."),
+          p("Use \\(\\neq\\) in alternative hypothesis."),
           tags$li("Left-tailed"),
-          p("Use XXX in alternative hypothesis."),
+          p("Use \\(<\\) in alternative hypothesis."),
           tags$li("Right-tailed"),
-          p("Use XXX in alternative hypothesis.")
+          p("Use \\(>\\) in alternative hypothesis.")
         ),
         br(),
         div(
