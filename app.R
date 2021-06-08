@@ -229,6 +229,10 @@ ui <- dashboardPage(
           class = "hangingindent",
           "Perrier, V., Meyer, F., Granjon, D. (2019). shinyWidgets: Custom inputs widgets for shiny. (v0.5.0) [R Package]. Available from https://CRAN.R-project.org/package=shinyWidgets"
         ),
+        p(
+          class = "hangingindent",
+          "The Pennsylvania State University (2021). STAT200 Elementary Statistics. Retrieved from https://online.stat.psu.edu/stat200/lesson/5"
+        ),
         br(),
         br(),
         br(),
