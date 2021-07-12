@@ -1,0 +1,13 @@
+Rules of the question bank:
+It must have id,question,format,label,A,B,C,D,extraOutput,answer,hint in the first line. Each entry must follow this format with each corresponding element separated with a comma.
+
+id: The id numbers of each entry must start at 1 and increase by 1 for each additional entry. 
+question: If a question has commas in it, the text must be contained in quotation marks.
+format: The format is numeric if a number must be typed in to answer the question. If the question is multiple choice, the format is the spelled out word of the number of choices. For example, if there is a multiple choice question with 4 possible answer options, the format should say four, with no quotations.
+label: If a question is multiple choice, the label should be Choices. If the question is numeric entry, the label should be a short description of the topic of the question. No quotations are needed.
+A,B,C,D: These are where the answer choices are written. If the question is a numeric input, just put the commas in without writing any words in between. If the question is multiple choice, write the answer choices each separated with a comma. If there is less than 4 choices, just put commas separating the remaining spots with no words. For example, if there is a true false question, this would be entered as: True,False,,. If there are commas used in the answer choices then quotation marks must be used around them, if no commas are used quotation marks are not necessary.
+extraOutput: This is only used if there is a picture output associated with the question. If there is no picture output, just use empty space where the entry would go. The format for entering an image is: "<img src='CIQ4.png' height='150' align='middle' alt='a confidence stretches from 22 to about 25.5; a point labelled mean occurs at 23.75, a second point labelled null mean is at 21'>". Make sure to follow this exact format, including the quotation marks. It is important to follow this or else the tic-tac-toe will not render properly. Make sure you include alt text and make the description detailed.
+answer: If the question is a numeric input, write the number of the answer in this spot. If the question is multiple choice, write the corresponding letter, A, B, C, or D that aligns with the correct answer in the order that you inputted them. No commas are necessary. 
+hint: If there is a hint associated with the question, write it here. No quotations are needed unless there is a comma in the hint. 
+
+
