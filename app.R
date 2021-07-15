@@ -1254,7 +1254,7 @@ tictacServer <- function(id, GRID_SIZE, questionBank) {
                      }
                    })
       observeEvent(
-        eventExpr = ns(input$pages), 
+        eventExpr = input$pages, 
         handlerExpr = {
           if (input$pages == "game") {
             if (!gameProgress) {
